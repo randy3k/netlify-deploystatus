@@ -4,9 +4,7 @@ const { GITHUB_PAT } = process.env;
 
 exports.handler = async (event, context) => {
   console.log(event.body);
-  console.log(typeof(event.body));
-  console.log(event.body["commit_ref"]);
-  var data = event.body;
+  var data = JSON.parse(event.body);
   var ref = data["commit_ref"];
   var url = data["commit_url"];
 
