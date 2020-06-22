@@ -8,6 +8,9 @@ exports.handler = async (event, context) => {
   var ref = data["commit_ref"];
   var url = data["commit_url"];
 
+  console.log(ref);
+  console.log(url);
+
   var urlrx = /^https:\/\/github.com\/(.*?)\/(.*?)\//;
   var matches = urlrx.exec(url);
   var owner = matches[1];
