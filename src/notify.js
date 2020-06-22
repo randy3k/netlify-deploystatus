@@ -8,6 +8,7 @@ exports.handler = async (event, context) => {
 
   var ref = data["commit_ref"];
   var url = data["commit_url"];
+  var state = data["state"];
 
   if (ref == null) {
     return({
@@ -23,7 +24,37 @@ exports.handler = async (event, context) => {
 
   var endpoint = `https://api.github.com/repos/${owner}/${repo}/statuses/${ref}`;
 
-  console.log(GITHUB_PAT);
+  var payload;
+
+  switch(state) {
+    case "ready":
+      payload = {
+        state: "success",
+        description: "successful",
+        context: "deploy to netlify"
+      };
+      break;
+    case "building":
+      payload = {
+        state: "pending",
+        description: "pending",
+        context: "deploy to netlify"
+      };
+      break;
+    case "error":
+      payload = {
+        state: "failure",
+        description: "failed",
+        context: "deploy to netlify"
+      };
+      break;
+    default:
+      payload = {
+        state: "error",
+        description: "error",
+        context: "deploy to netlify"
+      };
+  }
 
   return fetch(endpoint, {
     headers: {
@@ -31,11 +62,7 @@ exports.handler = async (event, context) => {
       "Authorization": `token ${GITHUB_PAT}`
     },
     method: "POST",
-    body: JSON.stringify({
-      state: "success",
-      description: "netlify deploy successful",
-      context: "deploy to netlify"
-    })
+    body: JSON.stringify(payload)
   })
     .then(res => res.text())
     .then(data => {
