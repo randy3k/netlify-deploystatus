@@ -1,2 +1,4 @@
 [build]
-    functions = "functions"
+  command = "#"
+  functions = "lambda"
+  publish = "build"
