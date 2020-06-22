@@ -4,7 +4,7 @@
     "netlify-lambda": "^1.6.3"
   },
   "scripts": {
-    "postinstall": "netlify-lambda install src",
-    "build": "netlify-lambda build src -c webpack.config.js"
+    "postinstall": "netlify-lambda install src/lambda",
+    "build": "netlify-lambda build src/lambda -c webpack.config.js"
   }
 }
