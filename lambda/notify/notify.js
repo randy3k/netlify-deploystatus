@@ -6,7 +6,7 @@ exports.handler = async (event, context) => {
     const subject = event.queryStringParameters.name || 'World'
     return {
       statusCode: 200,
-      body: event.body
+      body: event.body || event.queryStringParameters
     }
   } catch (err) {
     return { statusCode: 500, body: err.toString() }
