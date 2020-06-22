@@ -14,15 +14,26 @@ exports.handler = async (event, context) => {
 
   var endpoint = `https://api.github.com/repos/${owner}/${repo}/statuses/${ref}`;
 
+  console.log(GITHUB_PAT);
+
   return fetch(endpoint, {
     headers: {
       "content-type": "application/json",
-      "Authentication": `Bearer ${GITHUB_PAT}`
+      "Authorization": `token ${GITHUB_PAT}`
     },
+    method: "POST",
+    body: JSON.stringify({
+      state: "success",
+      description: "netlify deploy successful",
+      context: "deploy to netlify"
+    })
   })
-    .then(res => {
-      statusCode: 200,
-      body: res.text()
+    .then(res => res.text())
+    .then(data => {
+      return({
+        statusCode: 200,
+        body: data
+      })
     })
     .catch(error => ({
       statusCode: 422,
