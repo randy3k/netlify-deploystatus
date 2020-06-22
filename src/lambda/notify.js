@@ -3,8 +3,9 @@ import fetch from "node-fetch";
 const { GITHUB_PAT } = process.env;
 
 exports.handler = async (event, context) => {
-  console.log(event.body);
   var data = JSON.parse(event.body);
+  console.log(data)
+
   var ref = data["commit_ref"];
   var url = data["commit_url"];
 
