@@ -9,8 +9,12 @@ exports.handler = async (event, context) => {
   var ref = data["commit_ref"];
   var url = data["commit_url"];
 
-  console.log(ref);
-  console.log(url);
+  if (ref == null) {
+    return({
+      statusCode: 200,
+      body: "skipped"
+    })
+  }
 
   var urlrx = /^https:\/\/github.com\/(.*?)\/(.*?)\//;
   var matches = urlrx.exec(url);
