@@ -1,9 +1,7 @@
 {
   "dependencies": {
+    "jsonwebtoken": "^8.5.1",
     "encoding": "^0.1.12",
-    "netlify-lambda": "^1.6.3"
-  },
-  "scripts": {
-    "build": "netlify-lambda install src && netlify-lambda build src -c webpack.config.js"
+    "node-fetch": "^2.6.0"
   }
 }
