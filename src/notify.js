@@ -1,31 +1,46 @@
 const fetch = require("node-fetch");
 const crypto = require('crypto');
 
-const GITHUB_TOKEN  = process.env;
-const WEBHOOK_SIGNATURE = process.env;
+const { GITHUB_TOKEN, WEBHOOK_SIGNATURE } = process.env;
+
+// from https://github.com/imorente/netlify-form-functions-integration
+function signed(event) {
+  const signature = event.headers["x-webhook-signature"];
+  if (!signature) {
+    console.log("Missing x-webhook-signature");
+    return false;
+  }
+
+  const { iss, sha256 } = jwt.verify(signature, process.env.JWS_SECRET);
+  const hash = crypto
+    .createHash("sha256")
+    .update(event.body)
+    .digest("hex");
+
+  return iss === "netlify" && sha256 === hash;
+}
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: "Method Not Allowed"
+    };
+  }
+
+  if (!signed(event)) {
+    return {
+      statusCode: 403,
+      body: "Invalid signature"
+    };
+  }
+
   const payload = JSON.parse(event.body);
   console.log(payload)
 
   const ref = payload["commit_ref"];
   const url = payload["commit_url"];
   const state = payload["state"];
-
-  const sign = event.headers["X-Webhook-Signature"];
-
-  if (sign == null) {
-    console.log("no signature");
-    return({statusCode: 402, body: "no signature"})
-  }
-
-  const hmac = crypto.createHmac("sha1", WEBHOOK_SIGNATURE)
-  const digest = Buffer.from("sha1=" + hmac.update(payload).digest("hex"), "utf8")
-  const checksum = Buffer.from(sig, "utf8")
-  if (checksum.length !== digest.length || !crypto.timingSafeEqual(digest, checksum)) {
-    console.log("invalid signature");
-    return({statusCode: 403, body: "invalid signature"})
-  }
 
   if (ref == null) {
     console.log("not from github");
