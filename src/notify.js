@@ -1,4 +1,5 @@
 const fetch = require("node-fetch");
+const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 
 const { GITHUB_TOKEN, WEBHOOK_SIGNATURE } = process.env;
