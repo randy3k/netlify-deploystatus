@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const { GITHUB_PAT } = process.env;
+const { GITHUB_TOKEN } = process.env;
 
 exports.handler = async (event, context) => {
   var data = JSON.parse(event.body);
@@ -59,7 +59,7 @@ exports.handler = async (event, context) => {
   return fetch(endpoint, {
     headers: {
       "content-type": "application/json",
-      "Authorization": `token ${GITHUB_PAT}`
+      "Authorization": `token ${GITHUB_TOKEN}`
     },
     method: "POST",
     body: JSON.stringify(payload)
