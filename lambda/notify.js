@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 
-const { GITHUB_TOKEN, WEBHOOK_SIGNATURE } = process.env;
+const { GITHUB_TOKEN, JWS_SECRET } = process.env;
 
 // from https://github.com/imorente/netlify-form-functions-integration
 function signed(event) {
@@ -12,7 +12,7 @@ function signed(event) {
     return false;
   }
 
-  const { iss, sha256 } = jwt.verify(signature, process.env.JWS_SECRET);
+  const { iss, sha256 } = jwt.verify(signature, JWS_SECRET);
   const hash = crypto
     .createHash("sha256")
     .update(event.body)
