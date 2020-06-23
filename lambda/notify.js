@@ -48,6 +48,8 @@ exports.handler = async (event, context) => {
 
   const ref = payload["commit_ref"];
   const url = payload["commit_url"];
+  const admin_url = payload["admin_url"];
+  const build_id = payload["build_id"];
   const state = payload["state"];
 
   if (ref == null) {
@@ -62,17 +64,19 @@ exports.handler = async (event, context) => {
 
   const endpoint = `https://api.github.com/repos/${owner}/${repo}/statuses/${ref}`;
 
+  const target_url = `${admin_url}/deploys/${build_id}`
+
   var reply;
 
   switch(state) {
     case "ready":
-      reply = {state: "success", context: "deploy to netlify"};
+      reply = {state: "success", target_url: target_url, context: "deploy to netlify"};
       break;
     case "building":
-      reply = {state: "pending", context: "deploy to netlify"};
+      reply = {state: "pending", target_url: target_url, context: "deploy to netlify"};
       break;
     case "error":
-      reply = {state: "failure", context: "deploy to netlify"};
+      reply = {state: "failure", target_url: target_url, context: "deploy to netlify"};
       break;
     default:
       reply = {state: "error", context: "deploy to netlify"};
