@@ -49,7 +49,7 @@ exports.handler = async (event, context) => {
   const ref = payload["commit_ref"];
   const url = payload["commit_url"];
   const admin_url = payload["admin_url"];
-  const deploy_id = payload["deploy_id"];
+  const deploy_id = payload["id"];
   const state = payload["state"];
 
   if (ref == null) {
