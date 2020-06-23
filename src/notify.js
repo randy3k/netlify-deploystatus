@@ -1,59 +1,58 @@
-import fetch from "node-fetch";
+const fetch = require("node-fetch");
+const crypto = require('crypto');
 
-const { GITHUB_TOKEN } = process.env;
+const GITHUB_TOKEN  = process.env;
+const WEBHOOK_SIGNATURE = process.env;
 
 exports.handler = async (event, context) => {
-  var data = JSON.parse(event.body);
-  console.log(data)
+  const payload = JSON.parse(event.body);
+  console.log(payload)
 
-  var ref = data["commit_ref"];
-  var url = data["commit_url"];
-  var state = data["state"];
+  const ref = payload["commit_ref"];
+  const url = payload["commit_url"];
+  const state = payload["state"];
 
-  if (ref == null) {
-    return({
-      statusCode: 200,
-      body: "skipped"
-    })
+  const sign = event.headers["X-Webhook-Signature"];
+
+  if (sign == null) {
+    console.log("no signature");
+    return({statusCode: 402, body: "no signature"})
   }
 
-  var urlrx = /^https:\/\/github.com\/(.*?)\/(.*?)\//;
-  var matches = urlrx.exec(url);
-  var owner = matches[1];
-  var repo = matches[2];
+  const hmac = crypto.createHmac("sha1", WEBHOOK_SIGNATURE)
+  const digest = Buffer.from("sha1=" + hmac.update(payload).digest("hex"), "utf8")
+  const checksum = Buffer.from(sig, "utf8")
+  if (checksum.length !== digest.length || !crypto.timingSafeEqual(digest, checksum)) {
+    console.log("invalid signature");
+    return({statusCode: 403, body: "invalid signature"})
+  }
 
-  var endpoint = `https://api.github.com/repos/${owner}/${repo}/statuses/${ref}`;
+  if (ref == null) {
+    console.log("not from github");
+    return({statusCode: 200, body: "skipped"})
+  }
 
-  var payload;
+  const urlrx = /^https:\/\/github.com\/(.*?)\/(.*?)\//;
+  const matches = urlrx.exec(url);
+  const owner = matches[1];
+  const repo = matches[2];
+
+  const endpoint = `https://api.github.com/repos/${owner}/${repo}/statuses/${ref}`;
+
+  var reply;
 
   switch(state) {
     case "ready":
-      payload = {
-        state: "success",
-        description: "successful",
-        context: "deploy to netlify"
-      };
+      reply = {state: "success", context: "deploy to netlify"};
       break;
     case "building":
-      payload = {
-        state: "pending",
-        description: "pending",
-        context: "deploy to netlify"
-      };
+      reply = {state: "pending", context: "deploy to netlify"};
       break;
     case "error":
-      payload = {
-        state: "failure",
-        description: "failed",
-        context: "deploy to netlify"
-      };
+      reply = {state: "failure", context: "deploy to netlify"};
       break;
     default:
-      payload = {
-        state: "error",
-        description: "error",
-        context: "deploy to netlify"
-      };
+      reply = {state: "error", context: "deploy to netlify"};
   }
 
   return fetch(endpoint, {
@@ -62,7 +61,7 @@ exports.handler = async (event, context) => {
       "Authorization": `token ${GITHUB_TOKEN}`
     },
     method: "POST",
-    body: JSON.stringify(payload)
+    body: JSON.stringify(reply)
   })
     .then(res => res.text())
     .then(data => {
