@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 
-const { GITHUB_TOKEN, JWS_SECRET } = process.env;
+const { JWS_SECRET } = process.env;
 
 // from https://github.com/imorente/netlify-form-functions-integration
 function signed(event) {
@@ -39,13 +39,20 @@ exports.handler = async (event, context) => {
   const payload = JSON.parse(event.body);
   console.log(payload)
 
+  const token = event.queryStringParameters.token;
+
+  if (token == null) {
+    console.log("Missing GitHub token");
+    return({statusCode: 403, body: "Invalid GitHub token"})
+  }
+
   const ref = payload["commit_ref"];
   const url = payload["commit_url"];
   const state = payload["state"];
 
   if (ref == null) {
-    console.log("not from github");
-    return({statusCode: 200, body: "skipped"})
+    console.log("Not triggered by GitHub");
+    return({statusCode: 200, body: "Skipped"})
   }
 
   const urlrx = /^https:\/\/github.com\/(.*?)\/(.*?)\//;
@@ -74,7 +81,7 @@ exports.handler = async (event, context) => {
   return fetch(endpoint, {
     headers: {
       "content-type": "application/json",
-      "Authorization": `token ${GITHUB_TOKEN}`
+      "Authorization": `token ${token}`
     },
     method: "POST",
     body: JSON.stringify(reply)
