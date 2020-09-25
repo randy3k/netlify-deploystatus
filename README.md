@@ -1,4 +1,4 @@
-# A webapp for boardcasting netlify deploy status
+# A webapp for broadcasting netlify deploy status
 
 By using netlify functions and github API, this webapp notifies GitHub for the netlify deploy status of your site.
 
@@ -13,5 +13,5 @@ By using netlify functions and github API, this webapp notifies GitHub for the n
     Check out scope `repo:status`.
 1. Then go to the deploy notifiction settings of the your own site, add outgoing webhooks for
     "Deploy started", "Deploy succeeded" and "Deploy failed" by putting
-    `https://<NAME>.netlify.app.netlify/functions/notify?token=<TOKEN>` in "URL to notify" and the value of `JWS_SECRET` in "JWS secret token". `<TOKEN>` should be replaced by the token that you generated from GitHub earlier.
+    `https://<NAME>.netlify.app/.netlify/functions/notify?token=<TOKEN>` in "URL to notify" and the value of `JWS_SECRET` in "JWS secret token". `<TOKEN>` should be replaced by the token that you generated from GitHub earlier.
 
